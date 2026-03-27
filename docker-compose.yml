@@ -26,7 +26,7 @@ services:
       - RUNSETUP=true
       - DEBUGLEVEL=NONE
     volumes:
-      - 'fmeflow:/data/fmeflowdata'
+      - './fmeflowdata:/data/fmeflowdata'
     hostname: fmeflowcore
     restart: always
     healthcheck:
@@ -57,7 +57,7 @@ services:
     environment:
       - PRIMARY_PROCESS=websocket
     volumes:
-      - 'fmeflow:/data/fmeflowdata'
+      - './fmeflowdata:/data/fmeflowdata'
     hostname: fmeflowwebsocket
     restart: always
     healthcheck:
@@ -70,7 +70,7 @@ services:
   fmeflowqueue:
     image: 'docker.io/safesoftware/fmeflow-queue:26103'
     volumes:
-      - 'fmeflow:/data/fmeflowdata'
+      - './fmeflowdata:/data/fmeflowdata'
     hostname: fmeflowqueue
     restart: always
     healthcheck:
@@ -109,7 +109,7 @@ services:
   fmeflowweb:
     image: 'docker.io/safesoftware/fmeflow-web:26103'
     volumes:
-      - 'fmeflow:/data/fmeflowdata'
+      - './fmeflowdata:/data/fmeflowdata'
     environment:
       - EXTERNALHOSTNAME=${EXTERNALHOSTNAME:-localhost}
       - EXTERNALPORT=${EXTERNALPORT:-443}
@@ -130,7 +130,7 @@ services:
   fmeflowutility:
     image: 'docker.io/safesoftware/fmeflow-engine:26103'
     volumes:
-       - 'fmeflow:/data/fmeflowdata'
+       - './fmeflowdata:/data/fmeflowdata'
     restart: always
     depends_on:
       - fmeflowcore
@@ -150,7 +150,7 @@ services:
   fmeflowengine:
     image: 'docker.io/safesoftware/fmeflow-engine:26103'
     volumes:
-       - 'fmeflow:/data/fmeflowdata'
+       - './fmeflowdata:/data/fmeflowdata'
     restart: always
     depends_on:
       - fmeflowcore
@@ -172,7 +172,7 @@ services:
   # fmeflowenginedynamic:
   #   image: 'docker.io/safesoftware/fmeflow-engine:26103'
   #   volumes:
-  #      - 'fmeflow:/data/fmeflowdata'
+  #      - './fmeflowdata:/data/fmeflowdata'
   #   restart: always
   #   depends_on:
   #     - fmeflowcore
@@ -194,8 +194,6 @@ networks:
     driver: bridge
 volumes:
   database:
-    driver: local
-  fmeflow:
     driver: local
   sslcerts:
     driver: local
