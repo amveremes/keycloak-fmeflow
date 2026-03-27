@@ -22,7 +22,7 @@ services:
       - PRIMARY_PROCESS=core
       - EXTERNALHOSTNAME=${EXTERNALHOSTNAME:-localhost}
       - EXTERNALPORT=${EXTERNALPORT:-443}
-      - WEBPROTOCOL=${WEBPROTOCOL:-https}
+      - WEBPROTOCOL=${WEBPROTOCOL:-http}
       - RUNSETUP=true
       - DEBUGLEVEL=NONE
     volumes:
@@ -86,12 +86,10 @@ services:
     environment:
       - EXTERNALHOSTNAME=${EXTERNALHOSTNAME:-localhost}
       - EXTERNALPORT=${EXTERNALPORT:-443}
-      - WEBPROTOCOL=${WEBPROTOCOL:-https}
+      - WEBPROTOCOL=${WEBPROTOCOL:-http}
       - NGINX_WORKER_PROCESSES=${NGINX_WORKER_PROCESSES:-1}
     ports:
-      - '${EXTERNALPORT:-443}:8443'
-      # HTTP to HTTPS port, enable if protocol is https and redirect is requested
-      - 80:8080
+      - '${EXTERNALPORT:-8443}:8443'
     restart: always
     healthcheck:
       test: wget --quiet --tries=1 --spider http://nginx:8080/healthz || exit 1
@@ -106,6 +104,26 @@ services:
       - fmeflowweb
       - fmeflowwebsocket
       - fmeflowcore
+  caddy:
+    image: caddy:latest
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./caddy:/etc/caddy
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - web
+    depends_on:
+      - nginx
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
   fmeflowweb:
     image: 'docker.io/safesoftware/fmeflow-web:26103'
     volumes:
@@ -113,7 +131,7 @@ services:
     environment:
       - EXTERNALHOSTNAME=${EXTERNALHOSTNAME:-localhost}
       - EXTERNALPORT=${EXTERNALPORT:-443}
-      - WEBPROTOCOL=${WEBPROTOCOL:-https}
+      - WEBPROTOCOL=${WEBPROTOCOL:-http}
       - DEBUGLEVEL=NONE
     hostname: fmeflowweb
     restart: always
@@ -136,7 +154,7 @@ services:
       - fmeflowcore
     environment:
       - EXTERNALPORT=${EXTERNALPORT:-443}
-      - WEBPROTOCOL=${WEBPROTOCOL:-https}
+      - WEBPROTOCOL=${WEBPROTOCOL:-http}
       - DEBUGLEVEL=NONE
       - ENGINETYPE=UTILITY
     # This is to prevent sick engines from generating too many core dump files. Remove this if you would like to enable core dumps by the engine
@@ -156,7 +174,7 @@ services:
       - fmeflowcore
     environment:
       - EXTERNALPORT=${EXTERNALPORT:-443}
-      - WEBPROTOCOL=${WEBPROTOCOL:-https}
+      - WEBPROTOCOL=${WEBPROTOCOL:-http}
       - DEBUGLEVEL=NONE
     # This is to prevent sick engines from generating too many core dump files. Remove this if you would like to enable core dumps by the engine
     ulimits:
@@ -179,7 +197,7 @@ services:
   #   environment:
   #     - EXTERNALHOSTNAME=${EXTERNALHOSTNAME:-localhost}
   #     - EXTERNALPORT=${EXTERNALPORT:-443}
-  #     - WEBPROTOCOL=${WEBPROTOCOL:-https}
+  #     - WEBPROTOCOL=${WEBPROTOCOL:-http}
   #     - ENGINETYPE=DYNAMIC
   #   networks:
   #     - database
@@ -195,3 +213,5 @@ networks:
 volumes:
   database:
     driver: local
+  caddy_data:
+  caddy_config:

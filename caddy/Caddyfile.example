@@ -1,0 +1,14 @@
+# Caddyfile
+localhost {
+	# Proxy principal
+	reverse_proxy nginx:8443 {
+        header_down -Server
+        header_up X-Forwarded-Host {host}
+	}
+	encode gzip
+
+	log {
+		output stdout
+		format json
+	}
+}
