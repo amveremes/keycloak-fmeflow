@@ -101,7 +101,7 @@ services:
     networks:
       - web
     volumes:
-      - '${SSLCERTLOCATION:-sslcerts}:/etc/ssl/private'
+      - './sslcerts:/etc/ssl/private'
     depends_on:
       - fmeflowweb
       - fmeflowwebsocket
@@ -194,6 +194,4 @@ networks:
     driver: bridge
 volumes:
   database:
-    driver: local
-  sslcerts:
     driver: local
